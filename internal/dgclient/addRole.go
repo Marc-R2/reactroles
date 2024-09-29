@@ -61,36 +61,44 @@ func validateParamsForAdd(params RoleCommandParams) (validAddRoleParams, error) 
 	}, nil
 }
 
+func getOrCreateRole(params RoleCommandParams, roleName string, roleColor int) (*discordgo.Role, error) {
+	client := params.Client
+	guildID := params.GuildID()
+
+	roles, _ := client.Session.GuildRoles(guildID)
+	for _, role := range roles {
+		if role.Name == roleName {
+			params.Reply(fmt.Sprintf("Using existing role %s", role.Mention()))
+			return role, nil
+		}
+	}
+
+	roleParams := discordgo.RoleParams{
+		Name:  roleName,
+		Color: &roleColor,
+	}
+
+	role, err := client.Session.GuildRoleCreate(guildID, &roleParams)
+	if err != nil {
+		params.Reply("Error creating role")
+		println(err.Error())
+		return nil, err
+	}
+
+	return role, nil
+}
+
 func handleAddAction(params RoleCommandParams) {
 	addRoleParams, err := validateParamsForAdd(params)
-
 	if err != nil {
 		params.Reply(fmt.Sprintf("⚠ Error: %s\n%s", err, addRoleHelp()))
 		return
 	}
 
-	f := discordgo.RoleParams{
-		Name:         addRoleParams.Name,
-		Color:        &addRoleParams.Color,
-		UnicodeEmoji: &addRoleParams.Emoji,
-	}
-
-	role, roleCreateErr := params.Session.GuildRoleCreate(params.GuildID(), &f)
-
+	role, roleCreateErr := getOrCreateRole(params, addRoleParams.Name, addRoleParams.Color)
 	if roleCreateErr != nil {
-		params.Reply("Error creating role")
-		println(roleCreateErr.Error())
 		return
 	}
-
-	/*
-		_, editErr := params.Session.GuildRoleEdit(params.GuildID(), role.ID, addRoleParams.Name, addRoleParams.Color, false, 0, true)
-		if editErr != nil {
-			params.Reply("Error editing role")
-			println(editErr.Error())
-			return
-		}
-	*/
 
 	params.Client.db.RoleAdd(role.ID, addRoleParams.Emoji, addRoleParams.Name, params.GuildID())
 	params.Reply(fmt.Sprintf("Role %s %s added", role.Mention(), addRoleParams.Emoji))

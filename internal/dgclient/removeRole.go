@@ -28,7 +28,8 @@ func validateParamsForRemove(params RoleCommandParams) (validRemoveRoleParams, e
 		return removeRoleParams, errors.New("you do not have permission to remove roles")
 	}
 
-	if !params.Client.db.RoleIsNameTaken(RoleName, params.GuildID()) {
+	isTaken, _ := params.Client.db.RoleIsNameTaken(RoleName, params.GuildID())
+	if !isTaken {
 		return removeRoleParams, errors.New("no role with that name exists")
 	}
 

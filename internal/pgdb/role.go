@@ -71,10 +71,10 @@ func (db *ReactRolesDatabase) RoleIsEmojiTaken(emoji string, guildId string) boo
 	return role.ID != ""
 }
 
-func (db *ReactRolesDatabase) RoleIsNameTaken(name string, guildId string) bool {
+func (db *ReactRolesDatabase) RoleIsNameTaken(name string, guildId string) (bool, Role) {
 	var role Role
 	db.DB.Where("name = ? AND guild_id = ?", name, guildId).First(&role)
-	return role.ID != ""
+	return role.ID != "", role
 }
 
 func (db *ReactRolesDatabase) RoleGetCount(guildId string) int {

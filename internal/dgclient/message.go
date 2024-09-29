@@ -37,11 +37,11 @@ func validateUserHasRole(s *discordgo.Session, guildID string, authorID string, 
 		return false
 	}
 
-	for _, r := range member.Roles {
-		if r == role {
-			return true
-		}
+	if member.GuildID == role {
+		return true
 	}
+
+	log.Printf("User %s does not have role %s\n", authorID, role)
 
 	return false
 }

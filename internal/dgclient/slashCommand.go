@@ -2,10 +2,13 @@ package dgclient
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"log"
 )
 
 func (client *DiscordGoClient) GetOnInteractionHandler() func(*discordgo.Session, *discordgo.InteractionCreate) {
 	return func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		log.Printf("[dgclient] Interaction received: %s\n", i.Interaction.Data)
+
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{

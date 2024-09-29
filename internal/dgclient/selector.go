@@ -25,6 +25,8 @@ func (client *DiscordGoClient) updateAllRoleSelectorMessages() {
 }
 
 func (client *DiscordGoClient) updateRoleSelectorMessage(guildId string) {
+	log.Printf("[dgclient] Updating role selector message for guild %s...\n", guildId)
+
 	server := client.db.ServerConfigurationGet(guildId)
 	roles := client.db.RoleGetAll(guildId)
 
@@ -44,6 +46,11 @@ func (client *DiscordGoClient) updateRoleSelectorMessage(guildId string) {
 	}
 
 	selectors := lookupMessagesForSelectors(client, client.db.SelectorGetAll(guildId))
+
+	if server.SelectorChannelID == "" || server.SelectorChannelID == "0" {
+		log.Printf("[dgclient] No selector channel set for guild %s\n", guildId)
+		return
+	}
 
 	if len(selectors) == 0 {
 		message, err := client.Session.ChannelMessageSend(server.SelectorChannelID, "Setting up role assignment message...")
