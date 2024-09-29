@@ -77,7 +77,8 @@ func handleConfigureSlashCommand(client *DiscordGoClient, s *discordgo.Session, 
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Content: ":gear: Working...",
-			Flags:   uint64(discordgo.MessageFlagsEphemeral),
+			// Flags:   uint64(discordgo.MessageFlagsEphemeral),
+			Flags: discordgo.MessageFlagsEphemeral,
 		},
 	})
 
@@ -95,9 +96,10 @@ func handleConfigureSlashCommand(client *DiscordGoClient, s *discordgo.Session, 
 	err := validateServerConfiguration(client, i.GuildID, channel, addRole, removeRole, updateRole, channelCreate, channelCreateRole, channelRemoveRole, cascadeDelete, i.Member)
 
 	if err != nil {
-		s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+		/* s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
 			Content: fmt.Sprintf("Error configuring server: %s", err.Error()),
-		})
+		}) */
+		iRespEdit(fmt.Sprintf("Error configuring server: %s", err.Error()), s, i)
 		return
 	}
 
@@ -112,9 +114,10 @@ func handleConfigureSlashCommand(client *DiscordGoClient, s *discordgo.Session, 
 
 	client.updateRoleSelectorMessage(i.GuildID)
 
-	s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+	/* s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
 		Content: fmt.Sprintf(":white_check_mark: React Roles has %s.", updatedOrConfigured(client.Session, serverConfig, oldConfig)),
-	})
+	}) */
+	iRespEdit(fmt.Sprintf(":white_check_mark: React Roles has %s.", updatedOrConfigured(client.Session, serverConfig, oldConfig)), s, i)
 }
 
 func validateServerConfiguration(client *DiscordGoClient, guildId string, channel *discordgo.Channel, addRole *discordgo.Role, removeRole *discordgo.Role, updateRole *discordgo.Role, channelCreate bool, channelCreateRole *discordgo.Role, channelRemoveRole *discordgo.Role, cascadeDelete bool, member *discordgo.Member) error {

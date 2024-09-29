@@ -73,7 +73,12 @@ func handleUpdateAction(params RoleCommandParams) {
 
 	switch updateParams.RoleField {
 	case "color":
-		_, editErr := params.Session.GuildRoleEdit(params.GuildID(), role.ID, role.Name, updateParams.RoleFieldValueInt, false, 0, true)
+		f := discordgo.RoleParams{
+			Name:  role.Name,
+			Color: &updateParams.RoleFieldValueInt,
+		}
+
+		_, editErr := params.Session.GuildRoleEdit(params.GuildID(), role.ID, &f)
 		if editErr != nil {
 			params.Reply("Error updating role")
 			println(editErr.Error())
@@ -88,8 +93,13 @@ func handleUpdateAction(params RoleCommandParams) {
 		}
 
 		for _, guildRole := range guildRoles {
+			f := discordgo.RoleParams{
+				Name:  updateParams.RoleFieldValueString,
+				Color: &guildRole.Color,
+			}
+
 			if guildRole.ID == role.ID {
-				_, editErr := params.Session.GuildRoleEdit(params.GuildID(), role.ID, updateParams.RoleFieldValueString, guildRole.Color, false, 0, true)
+				_, editErr := params.Session.GuildRoleEdit(params.GuildID(), role.ID, &f)
 				if editErr != nil {
 					params.Reply("Error updating role")
 					println(editErr.Error())

@@ -40,6 +40,13 @@ func createChannelSlashCommand() *discordgo.ApplicationCommandOption {
 	}
 }
 
+func iRespEdit(txt string, s *discordgo.Session, i *discordgo.InteractionCreate) {
+	_, e := s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{Content: &txt})
+	if e != nil {
+		fmt.Println(e)
+	}
+}
+
 func handleCreateChannelSlashCommand(client *DiscordGoClient, s *discordgo.Session, i *discordgo.InteractionCreate, server *pgdb.ServerConfiguration) {
 	sc := i.ApplicationCommandData().Options[0]
 	role := sc.Options[0].RoleValue(s, i.GuildID)
@@ -48,17 +55,16 @@ func handleCreateChannelSlashCommand(client *DiscordGoClient, s *discordgo.Sessi
 
 	category, err := client.Session.Channel(server.ChannelCategoryID)
 	if err != nil {
-		s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+		/* s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
 			Content: fmt.Sprintf("Error getting category: %s", err.Error()),
-		})
+		}) */
+		iRespEdit(fmt.Sprintf("Error getting category: %s", err.Error()), s, i)
 		return
 	}
 
 	err = validateCreateChannelCommand(client, i.GuildID, role, category, name, channelType, server, i)
 	if err != nil {
-		s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
-			Content: fmt.Sprintf("Error: %s", err.Error()),
-		})
+		iRespEdit(fmt.Sprintf("Error: %s", err.Error()), s, i)
 		return
 	}
 
@@ -87,15 +93,17 @@ func handleCreateChannelSlashCommand(client *DiscordGoClient, s *discordgo.Sessi
 	})
 
 	if err != nil {
-		s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+		/* s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
 			Content: fmt.Sprintf("Error creating channel: %s", err.Error()),
-		})
+		}) */
+		iRespEdit(fmt.Sprintf("Error creating channel: %s", err.Error()), s, i)
 		return
 	}
 
-	s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
+	/* s.InteractionResponseEdit(i.Interaction, &discordgo.WebhookEdit{
 		Content: fmt.Sprintf("Channel %s created for role %s in category %s", createdChannel.Mention(), role.Mention(), category.Mention()),
-	})
+	}) */
+	iRespEdit(fmt.Sprintf("Channel %s created for role %s in category %s", createdChannel.Mention(), role.Mention(), category.Mention()), s, i)
 
 	if channelType == "text" {
 		client.db.RoleUpdateTextChannel(role.ID, createdChannel.ID, i.GuildID)

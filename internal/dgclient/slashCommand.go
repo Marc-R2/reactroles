@@ -10,7 +10,8 @@ func (client *DiscordGoClient) GetOnInteractionHandler() func(*discordgo.Session
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
 				Content: ":gear: Working...",
-				Flags:   uint64(discordgo.MessageFlagsEphemeral),
+				// Flags:   uint64(discordgo.MessageFlagsEphemeral),
+				Flags: discordgo.MessageFlagsEphemeral,
 			},
 		})
 

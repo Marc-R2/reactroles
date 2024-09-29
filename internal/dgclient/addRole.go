@@ -69,7 +69,13 @@ func handleAddAction(params RoleCommandParams) {
 		return
 	}
 
-	role, roleCreateErr := params.Session.GuildRoleCreate(params.GuildID())
+	f := discordgo.RoleParams{
+		Name:         addRoleParams.Name,
+		Color:        &addRoleParams.Color,
+		UnicodeEmoji: &addRoleParams.Emoji,
+	}
+
+	role, roleCreateErr := params.Session.GuildRoleCreate(params.GuildID(), &f)
 
 	if roleCreateErr != nil {
 		params.Reply("Error creating role")
@@ -77,12 +83,14 @@ func handleAddAction(params RoleCommandParams) {
 		return
 	}
 
-	_, editErr := params.Session.GuildRoleEdit(params.GuildID(), role.ID, addRoleParams.Name, addRoleParams.Color, false, 0, true)
-	if editErr != nil {
-		params.Reply("Error editing role")
-		println(editErr.Error())
-		return
-	}
+	/*
+		_, editErr := params.Session.GuildRoleEdit(params.GuildID(), role.ID, addRoleParams.Name, addRoleParams.Color, false, 0, true)
+		if editErr != nil {
+			params.Reply("Error editing role")
+			println(editErr.Error())
+			return
+		}
+	*/
 
 	params.Client.db.RoleAdd(role.ID, addRoleParams.Emoji, addRoleParams.Name, params.GuildID())
 	params.Reply(fmt.Sprintf("Role %s %s added", role.Mention(), addRoleParams.Emoji))
